@@ -1,11 +1,11 @@
-{ "name": "step",
-  "version": "0.0.3",
+{ "name": "stepup",
+  "version": "0.0.4",
   "description": "A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.",
   "engine": [ "node >=0.1.90" ],
-  "author": "Tim Caswell <tim@creationix.com>",
+  "author": "Adam Crabtree <dude@noderiety.com>",
   "repository":
   { "type" : "git",
-    "url" : "http://github.com/creationix/step.git"
+    "url" : "http://github.com/creationix/stepup.git"
   },
-  "main": "lib/step"
+  "main": "lib/stepup"
 }
