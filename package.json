@@ -1,5 +1,5 @@
 { "name": "stepup",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "description": "A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.",
   "engine": [ "node >=0.1.90" ],
   "author": "Adam Crabtree <dude@noderiety.com>",
