@@ -6,7 +6,9 @@ Additionally, stepup provides error coalescing, [asynchronous try catch](http://
 
 ## How to install
 
-Simply copy or link the lib/stepup.js file into your `$HOME/.node_libraries` folder.
+	npm install stepup
+	
+Or, simply copy or link the lib/stepup.js file into your `$HOME/.node_libraries` folder.
 
 ## How to use
 
