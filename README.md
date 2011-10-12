@@ -108,19 +108,19 @@ Output:
 	
 	STEP(
 	  FUNCTION ERRORHANDLER(ERR, NEXT) {
-	    // LOG AND IGNORE
-	    CONSOLE.LOG('\NTHIS IS THE LONG STACK TRACE FROM AN ASYNC ERROR: \N', ERR.STACK);
-	    NEXT('SOME DATA');
+		// LOG AND IGNORE
+		CONSOLE.LOG('\NTHIS IS THE LONG STACK TRACE FROM AN ASYNC ERROR: \N', ERR.STACK);
+		NEXT('SOME DATA');
 	  },
 	  FUNCTION READSELF() {
-	    FS.READFILE(__FILENAME, THIS);
+		FS.READFILE(__FILENAME, THIS);
 	  },
 	  FUNCTION CAPITALIZE(TEXT) {
-	    RETURN (''+TEXT).TOUPPERCASE();
+		RETURN (''+TEXT).TOUPPERCASE();
 	  },
 	  FUNCTION SHOWIT(NEWTEXT) {
-	    CONSOLE.LOG(NEWTEXT);
-	    THROW NEW ERROR('FAIL.');
+		CONSOLE.LOG(NEWTEXT);
+		THROW NEW ERROR('FAIL.');
 	  },
 	  FUNCTION AFTERERROR(DATA) {
 	  	CONSOLE.LOG('\NTHIS IS AFTER ERRORHANDLER HAS BEEN CALLED: \N', DATA);
@@ -129,19 +129,27 @@ Output:
 	
 	This is the long stack trace from an async error: 
 	 Error: fail.
-	    at Function.showIt (/Users/adamcrabtree/projects/mine/stepup/examples/errorHandler.js:18:11)
-	    at run (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:45:20)
-	    at next (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:55:4)
-	    at run (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:48:5)
-	    at next (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:55:4)
-	    at [object Object].<anonymous> (fs.js:107:5)
-	    ----------------------------------------
-	    at fs.readFile
-	    at Function.readSelf (/Users/adamcrabtree/projects/mine/stepup/examples/errorHandler.js:11:8)
-	    at run (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:45:20)
-	    at next (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:55:4)
-	    at Step (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:124:3)
-	    at Object.<anonymous> (/Users/adamcrabtree/projects/mine/stepup/examples/errorHandler.js:4:1)
+		<span style="color:red;">at Function.showIt (/Users/adamcrabtree/projects/mine/stepup/examples/errorHandler.js:18:9)</span>
+		<span style="color:red;">at next (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:41:19)</span>
+		<span style="color:red;">at next (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:44:4)</span>
+		at [object Object].<anonymous> (fs.js:108:5)
+		at [object Object].emit (events.js:64:17)
+		at afterRead (fs.js:1072:12)
+		at Object.wrapper [as oncomplete] (fs.js:246:17)
+		----------------------------------------
+		at fs.readFile
+		<span style="color:red;">at Function.readSelf (/Users/adamcrabtree/projects/mine/stepup/examples/errorHandler.js:11:6)</span>
+		<span style="color:red;">at next (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:41:19)</span>
+		<span style="color:red;">at /Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:113:9</span>
+		<span style="color:red;">at init (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:112:3)</span>
+		<span style="color:red;">at Step (/Users/adamcrabtree/projects/mine/stepup/lib/stepup.js:126:3)</span>
+		<span style="color:red;">at Object.<anonymous> (/Users/adamcrabtree/projects/mine/stepup/examples/errorHandler.js:4:1)</span>
+		at Module._compile (module.js:432:26)
+		at Object..js (module.js:450:10)
+		at Module.load (module.js:351:31)
+		at Function._load (module.js:310:12)
+		at Array.0 (module.js:470:10)
+		at EventEmitter._tickCallback (node.js:199:26)
 	
 	This is after errorHandler has been called: 
 	 some data
