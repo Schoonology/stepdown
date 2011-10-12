@@ -16,15 +16,15 @@ The stepup library exports a single function I call `step`.	It accepts any numbe
 
 	step(
 		function readSelf() {
-		fs.readFile(__filename, this);
+			fs.readFile(__filename, this);
 		},
 		function capitalize(err, text) {
-		if (err) throw err;
-		return text.toUpperCase();
+			if (err) throw err;
+			return text.toUpperCase();
 		},
 		function showIt(err, newText) {
-		if (err) throw err;
-		console.log(newText);
+			if (err) throw err;
+			console.log(newText);
 		}
 	);
 
@@ -37,14 +37,14 @@ Also there is support for parallel actions:
 	step(
 		// Loads two files in parallel
 		function loadStuff() {
-		fs.readFile(__filename, this.parallel());
-		fs.readFile("/etc/passwd", this.parallel());
+			fs.readFile(__filename, this.parallel());
+			fs.readFile("/etc/passwd", this.parallel());
 		},
 		// Show the result when done
 		function showStuff(err, code, users) {
-		if (err) throw err;
-		sys.puts(code);
-		sys.puts(users);
+			if (err) throw err;
+			console.log(code);
+			console.log(users);
 		}
 	)
 
@@ -54,21 +54,21 @@ Also you can use group with a dynamic number of common tasks.
 
 	step(
 		function readDir() {
-		fs.readdir(__dirname, this);
+			fs.readdir(__dirname, this);
 		},
 		function readFiles(err, results) {
-		if (err) throw err;
-		// Create a new group
-		var group = this.group();
-		results.forEach(function (filename) {
-			if (/\.js$/.test(filename)) {
-			fs.readFile(__dirname + "/" + filename, 'utf8', group());
-			}
-		});
+			if (err) throw err;
+			// Create a new group
+			var group = this.group();
+			results.forEach(function (filename) {
+				if (/\.js$/.test(filename)) {
+					fs.readFile(__dirname + "/" + filename, 'utf8', group());
+				}
+			});
 		},
 		function showAll(err , files) {
-		if (err) throw err;
-		sys.p(files);
+			if (err) throw err;
+			console.log(files);
 		}
 	);
 
@@ -81,19 +81,19 @@ Stepup also supports robust asynchronous error handling and error coalescing. If
 
 	step(
 		function errorHandler(err, next) {
-		// log and ignore
-		console.log('\nThis is the long stack trace from an async error: \n', err.stack);
-		next('some data');
+			// log and ignore
+			console.log('\nThis is the long stack trace from an async error: \n', err.stack);
+			next('some data');
 		},
 		function readSelf() {
-		fs.readFile(__filename, this);
+			fs.readFile(__filename, this);
 		},
 		function capitalize(text) {
-		return (''+text).toUpperCase();
+			return (''+text).toUpperCase();
 		},
 		function showIt(newText) {
-		console.log(newText);
-		throw new Error('fail.');
+			console.log(newText);
+			throw new Error('fail.');
 		},
 		function afterError(data) {
 			console.log('\nThis is after errorHandler has been called: \n', data);
