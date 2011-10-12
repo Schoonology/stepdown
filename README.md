@@ -102,4 +102,4 @@ Stepup also supports robust asynchronous error handling and error coalescing. If
 
 Output:
 
-<img src="http://i.imgur.com/oIJA2.png" border="1"/>
+<img src="http://i.imgur.com/oIJA2.png" border="1" style="border: 1px black solid"/>
