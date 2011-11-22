@@ -11,7 +11,7 @@ Step(
     var callback = this;
     setTimeout(function () {
       callback(exception);
-    });
+    },0);
   },
   function (err) {
     fulfill('two');
