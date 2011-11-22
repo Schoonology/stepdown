@@ -1,6 +1,6 @@
 global.assert = require('assert');
 global.fs = require('fs');
-global.Step = require('../lib/step');
+global.Step = require('../lib/stepup');
 
 // A mini expectations module to ensure expected callback fire at all.
 var expectations = {};
