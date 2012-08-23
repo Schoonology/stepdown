@@ -1,13 +1,13 @@
 {
 	"name": "stepup",
-	"version": "0.0.11",
+	"version": "0.0.12",
 	"description": "A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.",
 	"homepage": "http://github.com/CrabDude/stepup",
 	"repository": {
 		"type" : "git",
 		"url" : "git://github.com/CrabDude/stepup.git"
 	},
-	"bugs" : { "web" : "http://github.com/CrabDude/stepup/issues" },
+	"bugs" : { "url" : "http://github.com/CrabDude/stepup/issues" },
 	"author": "Adam Crabtree <dude@noderiety.com>",
 	"main": "lib/stepup",
 	"engines" : { "node" : ">=0.2.0" },
@@ -16,7 +16,7 @@
 		"url" : "http://www.opensource.org/licenses/mit-license.html"
 	}],
 	"dependencies" : {
-		"trycatch": ">=0.0.8 <0.1"
+		"trycatch": "0.1.x"
 	},
 	"keywords": [
 		"error",
