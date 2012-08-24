@@ -1,4 +1,4 @@
-# Stepup
+# Stepdown
 
 A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.
 
@@ -103,3 +103,10 @@ Stepup also supports robust asynchronous error handling and error coalescing. If
 Output:
 
 <img src="http://i.imgur.com/oIJA2.png" border="1" style="border: 1px black solid"/>
+
+## Attribution
+
+This work stands on the shoulders of giants:
+
+Tim Caswell [creationix](https://github.com/creationix), who created [step](https://github.com/creationix/step).
+Adam Crabtree [CrabDude](https://github.com/CrabDude/stepup), who created [stepup](https://github.com/CrabDude/stepup).
