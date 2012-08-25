@@ -1,33 +1,38 @@
 {
-	"name": "stepdown",
-	"version": "0.0.1",
-	"description": "A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.",
-	"homepage": "http://github.com/Schoonology/stepdown",
-	"repository": {
-		"type": "git",
-		"url": "git://github.com/Schoonology/stepdown.git"
-	},
-	"author": {
-		"name": "Michael Schoonmaker",
-		"email": "michael.r.schoonmaker@gmail.com"
-	},
-	"main": "lib/stepdown",
-	"engines": {
-		"node": ">=0.2.0"
-	},
-	"licenses": [{
-		"type": "MIT",
-		"url": "http://www.opensource.org/licenses/mit-license.html"
-	}],
-	"dependencies": {
-		"trycatch": "0.1.x"
-	},
-	"keywords": [
-		"error",
-		"exception",
-		"control",
-		"flow",
-		"async",
-		"series"
-	]
+  "name": "stepdown",
+  "version": "0.0.1",
+  "description": "A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.",
+  "homepage": "http://github.com/Schoonology/stepdown",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Schoonology/stepdown.git"
+  },
+  "author": "Michael Schoonmaker <michael.r.schoonmaker@gmail.com>",
+  "main": "lib/stepdown",
+  "engines": {
+    "node": ">=0.2.0"
+  },
+  "dependencies": {
+    "trycatch": "0.1.x"
+  },
+  "devDependencies": {
+    "mocha": "",
+    "chai": ""
+  },
+  "keywords": [
+    "error",
+    "exception",
+    "control",
+    "flow",
+    "async",
+    "series"
+  ],
+  "directories": {
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "license": "MIT"
 }
