@@ -45,6 +45,26 @@ describe('Stepdown', function () {
             }]);
         });
 
+        it('should pass along the return value if non-null, assuming the step is synchronous', function (done) {
+            stepdown([function stepOne(err, value) {
+                expect(err).to.not.exist;
+                expect(value).to.not.exist;
+                return 'one';
+            }, function stepTwo(err, value) {
+                expect(err).to.not.exist;
+                expect(value).to.equal('one');
+                return 'two';
+            }, function stepThree(err, value) {
+                expect(err).to.not.exist;
+                expect(value).to.equal('two');
+                return 'three';
+            }, function finished(err, value) {
+                expect(err).to.not.exist;
+                expect(value).to.equal('three');
+                done();
+            }]);
+        });
+
         it('should execute the next function with the error from the previous callback', function (done) {
             stepdown([function stepOne(err, value) {
                 expect(err).to.not.exist;
@@ -129,7 +149,7 @@ describe('Stepdown', function () {
                 expect(a).to.equal(2);
                 expect(b).to.equal(1);
                 expect(c).to.equal(3);
-                
+
                 done();
             }], function errorHandler(err) {
                 // We don't expect this to get called this time.
@@ -149,7 +169,7 @@ describe('Stepdown', function () {
                 expect(arguments).to.have.length(2);
                 expect(a).to.equal(4);
                 expect(b).to.equal(5);
-                
+
                 done();
             }], function errorHandler(err) {
                 // We don't expect this to get called this time.
@@ -167,7 +187,7 @@ describe('Stepdown', function () {
                 expect(a).to.deep.equal([2, 3, 4]);
                 expect(b).to.equal(1);
                 expect(c).to.equal(5);
-                
+
                 done();
             }], function errorHandler(err) {
                 // We don't expect this to get called this time.
@@ -225,7 +245,7 @@ describe('Stepdown', function () {
                 expect(results[0]).to.equal(2);
                 expect(results[1]).to.equal(1);
                 expect(results[2]).to.equal(3);
-                
+
                 done();
             }], function errorHandler(err) {
                 // We don't expect this to get called this time.
@@ -249,7 +269,7 @@ describe('Stepdown', function () {
 
                 expect(a).to.deep.equal([2, 1, 3]);
                 expect(b).to.deep.equal([4, 5]);
-                
+
                 done();
             }], function errorHandler(err) {
                 // We don't expect this to get called this time.
@@ -269,7 +289,7 @@ describe('Stepdown', function () {
                 expect(results[0]).to.deep.equal([2, 3, 4]);
                 expect(results[1]).to.equal(1);
                 expect(results[2]).to.equal(5);
-                
+
                 done();
             }], function errorHandler(err) {
                 // We don't expect this to get called this time.
@@ -295,6 +315,140 @@ describe('Stepdown', function () {
                 expect(err).to.be.an.instanceof(Array);
                 expect(err).to.have.length(2);
                 done();
+            });
+        });
+    });
+
+    describe('errorHandler', function () {
+        it('should be able to continue upon calling next', function (done) {
+            stepdown([function brokenStep() {
+                throw new Error('Broken');
+            }, function finalStep() {
+                done();
+            }], function errorHandler(err, next) {
+                expect(err).to.be.an.instanceof(Error);
+                expect(err.message).to.equal('Broken');
+                next();
+            });
+        });
+    });
+
+    describe('options', function () {
+        describe('slowTimeout', function () {
+            it('should emit the "slow" event when a step takes too long', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }], {
+                    slowTimeout: 100
+                });
+
+                emitter.on('slow', function () {
+                    done();
+                });
+            });
+            it('should pass along the step itself as data', function (done) {
+                function slowStep() {
+                    // Never continues.
+                }
+
+                var emitter = stepdown([slowStep], {
+                    slowTimeout: 100
+                });
+
+                emitter.on('slow', function (step) {
+                    expect(step).to.equal(slowStep);
+                    done();
+                });
+            });
+            it('should be able to skip the step upon calling skip', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }, function finished() {
+                    done();
+                }], {
+                    slowTimeout: 100
+                });
+
+                emitter.on('slow', function (step, skip) {
+                    skip();
+                });
+            });
+            it('should default to 0, indicating no timeout', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }]);
+
+                emitter.on('slow', function () {
+                    throw new Error('Should not have been called');
+                });
+
+                setTimeout(done, 100);
+            });
+        });
+
+        describe('skipTimeout', function () {
+            it('should emit the "skip" event when a step takes too long', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }], {
+                    skipTimeout: 100
+                });
+
+                emitter.on('skip', function () {
+                    done();
+                });
+            });
+            it('should pass along the step itself as data', function (done) {
+                function slowStep() {
+                    // Never continues.
+                }
+
+                var emitter = stepdown([slowStep], {
+                    skipTimeout: 100
+                });
+
+                emitter.on('skip', function (step) {
+                    expect(step).to.equal(slowStep);
+                    done();
+                });
+            });
+            it('should skip the slow step automatically', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }, function finished() {
+                    done();
+                }], {
+                    skipTimeout: 100
+                });
+            });
+            it('should be able to cancel skipping the step upon calling cancel', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }, function () {
+                    throw new Error('Should not have been called!');
+                }], {
+                    skipTimeout: 50
+                }, function errorHandler(err) {
+                    // Need to bubble out.
+                    throw err;
+                });
+
+                emitter.on('skip', function (step, cancel) {
+                    cancel();
+                });
+
+                setTimeout(done, 100);
+            });
+            it('should default to 0, indicating no timeout', function (done) {
+                var emitter = stepdown([function () {
+                    // Never continues.
+                }]);
+
+                emitter.on('skip', function () {
+                    throw new Error('Should not have been called');
+                });
+
+                setTimeout(done, 100);
             });
         });
     });

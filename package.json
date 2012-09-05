@@ -1,6 +1,6 @@
 {
   "name": "stepdown",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A simple control-flow library for node.JS that makes parallel execution, serial execution, and error handling painless.",
   "homepage": "http://github.com/Schoonology/stepdown",
   "repository": {
@@ -12,9 +12,7 @@
   "engines": {
     "node": ">=0.2.0"
   },
-  "dependencies": {
-    "trycatch": "0.1.x"
-  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "",
     "chai": ""
