@@ -35,11 +35,11 @@ Shiny!
 
 ### Next _Steps_
 
-Going beyond the [basic usage](#basic-usage), Stepdown supports parallel execution in two ways: as a pre-defined set of "[results](#adding-results)", and as an arbitrary "[group](#grouping results)" of results.
+Going beyond the [basic usage](#basic-usage-serial), Stepdown supports parallel execution in two ways: as a pre-defined set of "[results](#adding-results-pre-defined-parallel)", and as an arbitrary "[group](#grouping-results-arbitrary-parallel)" of results.
 
 ## Adding Results (Pre-defined Parallel)
 
-The [basic usage](#basic-usage) and it's `next` callback assume that each step has exactly one (a)synchronous result, and that each step performs only one task. The beauty of Node is in its asynchronicity, and we should take advantage of that asynchronicity to perform as much of our work as we can in parallel.
+The [basic usage](#basic-usage-serial) and it's `next` callback assume that each step has exactly one (a)synchronous result, and that each step performs only one task. The beauty of Node is in its asynchronicity, and we should take advantage of that asynchronicity to perform as much of our work as we can in parallel.
 
 To that end, enter `addResult`. Within a step, each call to `this.addResult()` generates a new callback function. Each of these functions corresponds to a new argument passed to the next step.
 
@@ -72,7 +72,7 @@ Much better, no?
 
 ### Important Caveat
 
-The caveat to `addResult` is that these callback functions are allocated synchronously, requiring the developer to explicitly prescribe what results are expected ahead of time. To get around this, we can create [arbitrary groups of results](#grouping-results).
+The caveat to `addResult` is that these callback functions are allocated synchronously, requiring the developer to explicitly prescribe what results are expected ahead of time. To get around this, we can create [arbitrary groups of results](#grouping-results-arbitrary-parallel).
 
 ## Grouping Results (Arbitrary Parallel)
 
