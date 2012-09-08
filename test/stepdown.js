@@ -333,6 +333,18 @@ describe('Stepdown', function () {
         });
     });
 
+    describe('events', function () {
+        describe('complete', function () {
+            it('should fire upon completing all steps', function (done) {
+                stepdown([function stepOne() {
+                    process.nextTick(this.next);
+                }]).on('complete', function () {
+                    done();
+                });
+            });
+        });
+    });
+
     describe('options', function () {
         describe('slowTimeout', function () {
             it('should emit the "slow" event when a step takes too long', function (done) {
