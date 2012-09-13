@@ -4,15 +4,15 @@ var expect = require('chai').expect,
 
 describe('Stepdown', function () {
     describe('next', function () {
-        it('should execute each step in order when this or this.next is called', function (done) {
+        it('should execute each step in order when this.next is called', function (done) {
             var steps = [];
 
             stepdown([function stepOne() {
                 steps.push(1);
-                this();
+                this.next();
             }, function stepTwo() {
                 steps.push(2);
-                this();
+                this.next();
             }, function stepThree() {
                 steps.push(3);
                 this.next();
@@ -26,84 +26,6 @@ describe('Stepdown', function () {
         });
 
         it('should execute the next function with the value from the previous callback', function (done) {
-            stepdown([function stepOne(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.not.exist;
-                this.next(null, 'one');
-            }, function stepTwo(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('one');
-                this.next(null, 'two');
-            }, function stepThree(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('two');
-                this.next(null, 'three');
-            }, function finished(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('three');
-                done();
-            }]);
-        });
-
-        it('should pass along the return value if non-null, assuming the step is synchronous', function (done) {
-            stepdown([function stepOne(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.not.exist;
-                return 'one';
-            }, function stepTwo(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('one');
-                return 'two';
-            }, function stepThree(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('two');
-                return 'three';
-            }, function finished(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('three');
-                done();
-            }]);
-        });
-
-        it('should execute the next function with the error from the previous callback', function (done) {
-            stepdown([function stepOne(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.not.exist;
-                this.next('one', null);
-            }, function stepTwo(err, value) {
-                expect(err).to.equal('one');
-                expect(value).to.not.exist;
-                this.next('two', null);
-            }, function stepThree(err, value) {
-                expect(err).to.equal('two');
-                expect(value).to.not.exist;
-                this.next('three', null);
-            }, function finished(err, value) {
-                expect(err).to.equal('three');
-                expect(value).to.not.exist;
-                done();
-            }]);
-        });
-
-        it('should execute the provided error handler on throw', function (done) {
-            stepdown([function flaky() {
-                throw 42;
-            }], function errorHandler(err) {
-                expect(err).to.equal(42);
-                done();
-            });
-        });
-
-        it('should execute the provided error handler on error', function (done) {
-            stepdown([function flaky() {
-                this.next(42);
-            }], function errorHandler(err) {
-                expect(err).to.equal(42);
-                done();
-            });
-        });
-
-        it('should pass only one value when an error handler is provided', function (done) {
             stepdown([function stepOne(value) {
                 expect(value).to.not.exist;
                 this.next(null, 'one');
@@ -116,9 +38,44 @@ describe('Stepdown', function () {
             }, function finished(value) {
                 expect(value).to.equal('three');
                 done();
+            }]);
+        });
+
+        it('should pass along the return value if non-null, assuming the step is synchronous', function (done) {
+            stepdown([function stepOne(value) {
+                expect(value).to.not.exist;
+                return 'one';
+            }, function stepTwo(value) {
+                expect(value).to.equal('one');
+                return 'two';
+            }, function stepThree(value) {
+                expect(value).to.equal('two');
+                return 'three';
+            }, function finished(value) {
+                expect(value).to.equal('three');
+                done();
+            }]);
+        });
+
+        it('should execute the provided error handler on throw', function (done) {
+            stepdown([function flaky() {
+                throw 42;
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
             }], function errorHandler(err) {
-                // We don't expect this to get called this time.
-                throw err;
+                expect(err).to.equal(42);
+                done();
+            });
+        });
+
+        it('should execute the provided error handler on error', function (done) {
+            stepdown([function flaky() {
+                this.next(42);
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
+            }], function errorHandler(err) {
+                expect(err).to.equal(42);
+                done();
             });
         });
     });
@@ -198,15 +155,20 @@ describe('Stepdown', function () {
         it('should pass the only error to the error handler as an Error', function (done) {
             stepdown([function stageOne() {
                 this.addResult()(42);
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
             }], function errorHandler(err) {
                 expect(err).to.equal(42);
                 done();
             });
         });
+
         it('should pass an array of Errors to the error handler if there is more than one', function (done) {
             stepdown([function stageOne() {
                 this.addResult()(42);
                 this.addResult()('answer');
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
             }], function errorHandler(err) {
                 expect(err).to.be.an.instanceof(Array);
                 expect(err).to.have.length(2);
@@ -300,6 +262,8 @@ describe('Stepdown', function () {
         it('should pass the only error to the error handler as an Error', function (done) {
             stepdown([function stageOne() {
                 this.createGroup()()(42);
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
             }], function errorHandler(err) {
                 expect(err).to.equal(42);
                 done();
@@ -311,6 +275,8 @@ describe('Stepdown', function () {
 
                 group()(42);
                 group()('answer');
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
             }], function errorHandler(err) {
                 expect(err).to.be.an.instanceof(Array);
                 expect(err).to.have.length(2);
