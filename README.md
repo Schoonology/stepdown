@@ -95,13 +95,7 @@ Using the group function should look incredibly similar to using `addResult`.
 
 ## Moving from Step/Stepup
 
-If you should decide to port a project from using [Step](https://github.com/creationix/step) or [Stepup](https://github.com/CrabDude/stepup) to use Stepdown, there are helper functions that map the Step/Stepup signatures to Stepdown:
-
-    stepdown.step(... steps)
-
-    stepdown.stepup([errorHandler], ... steps)
-
-Find and replace, then convert the APIs to Stepdown as necessary.
+Coming (back) soon.
 
 ## Attribution
 

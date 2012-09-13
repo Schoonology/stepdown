@@ -106,13 +106,13 @@ describe('Stepdown', function () {
         it('should pass only one value when an error handler is provided', function (done) {
             stepdown([function stepOne(value) {
                 expect(value).to.not.exist;
-                this(null, 'one');
+                this.next(null, 'one');
             }, function stepTwo(value) {
                 expect(value).to.equal('one');
-                this(null, 'two');
+                this.next(null, 'two');
             }, function stepThree(value) {
                 expect(value).to.equal('two');
-                this(null, 'three');
+                this.next(null, 'three');
             }, function finished(value) {
                 expect(value).to.equal('three');
                 done();
@@ -343,6 +343,16 @@ describe('Stepdown', function () {
                 });
             });
         });
+
+        describe('error', function () {
+            it('should fire for the last step', function (done) {
+                stepdown([function stepOne() {
+                    this.next(new Error('Should be caught'));
+                }]).on('error', function (err) {
+                    done();
+                });
+            });
+        });
     });
 
     describe('options', function () {
@@ -461,49 +471,6 @@ describe('Stepdown', function () {
                 });
 
                 setTimeout(done, 100);
-            });
-        });
-    });
-
-    describe('step', function () {
-        it('should emulate Step', function (done) {
-            stepdown.step(function stepOne(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.not.exist;
-                this.next(null, 'one');
-            }, function stepTwo(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('one');
-                this.next('two', null);
-            }, function stepThree(err, value) {
-                expect(err).to.equal('two');
-                expect(value).to.not.exist;
-                this.parallel()(null, 'three');
-            }, function finished(err, value) {
-                expect(err).to.not.exist;
-                expect(value).to.equal('three');
-                done();
-            });
-        });
-    });
-
-    describe('stepup', function () {
-        it('should emulate Stepup', function (done) {
-            stepdown.stepup(function errorHandler(err, next) {
-                expect(err).to.equal('two');
-                next();
-            }, function stepOne(value) {
-                expect(value).to.not.exist;
-                this.next(null, 'one');
-            }, function stepTwo(value) {
-                expect(value).to.equal('one');
-                this.next('two', null);
-            }, function stepThree(value) {
-                expect(value).to.not.exist;
-                this.parallel()(null, 'three');
-            }, function finished(value) {
-                expect(value).to.equal('three');
-                done();
             });
         });
     });
