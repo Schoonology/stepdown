@@ -10,7 +10,7 @@ A simple control-flow library for node.JS that makes parallel execution, serial 
 
 Stepdown exports a single function:
 
-    stepdown(steps, [options], [errorHandler], [slowHandler], [skipHandler])
+    stepdown(steps, [options], [callback])
 
 Each of the functions in the `steps` Array is called serially until that step has completed:
 

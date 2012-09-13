@@ -294,6 +294,15 @@ describe('Stepdown', function () {
                     done();
                 });
             });
+
+            it('should pass along the final results', function (done) {
+                stepdown([function stepOne() {
+                    process.nextTick(this.next.bind(this, null, 42));
+                }]).on('complete', function (result) {
+                    expect(result).to.equal(42);
+                    done();
+                });
+            });
         });
 
         describe('error', function () {
@@ -423,6 +432,29 @@ describe('Stepdown', function () {
                 });
 
                 setTimeout(done, 100);
+            });
+        });
+    });
+
+    describe('callback', function () {
+        it('should fire the Node-style callback on error', function (done) {
+            stepdown([function stepOne() {
+                this.next(new Error('Should be caught'));
+            }], function (err, data) {
+                expect(data).to.not.exist;
+                expect(err.message).to.equal('Should be caught');
+                done();
+            });
+        });
+
+        it('should fire the Node-style callback on completion with the final results', function (done) {
+            stepdown([function stepOne() {
+                process.nextTick(this.next.bind(this, null, 'answer', 42));
+            }], function (err, first, second) {
+                expect(err).to.not.exist;
+                expect(first).to.equal('answer');
+                expect(second).to.equal(42);
+                done();
             });
         });
     });
