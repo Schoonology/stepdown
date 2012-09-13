@@ -319,20 +319,6 @@ describe('Stepdown', function () {
         });
     });
 
-    describe('errorHandler', function () {
-        it('should be able to continue upon calling next', function (done) {
-            stepdown([function brokenStep() {
-                throw new Error('Broken');
-            }, function finalStep() {
-                done();
-            }], function errorHandler(err, next) {
-                expect(err).to.be.an.instanceof(Error);
-                expect(err.message).to.equal('Broken');
-                next();
-            });
-        });
-    });
-
     describe('events', function () {
         describe('complete', function () {
             it('should fire upon completing all steps', function (done) {
