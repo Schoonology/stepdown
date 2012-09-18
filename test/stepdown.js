@@ -269,6 +269,7 @@ describe('Stepdown', function () {
                 done();
             });
         });
+
         it('should pass an array of Errors to the error handler if there is more than one', function (done) {
             stepdown([function stageOne() {
                 var group = this.createGroup();
@@ -282,6 +283,17 @@ describe('Stepdown', function () {
                 expect(err).to.have.length(2);
                 done();
             });
+        });
+
+        it('should result in an empty group if the generator is never fired', function (done) {
+            stepdown([function stageOne() {
+                var group = this.createGroup();
+            }, function stageTwo(results) {
+                expect(results).to.be.an.instanceof(Array);
+                expect(results).to.have.length(0);
+
+                done();
+            }]);
         });
     });
 
