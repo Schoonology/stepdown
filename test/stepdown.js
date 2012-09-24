@@ -470,4 +470,33 @@ describe('Stepdown', function () {
             });
         });
     });
+
+    describe('this', function () {
+        it('should be consistent between steps', function (done) {
+            var firstThis;
+
+            stepdown([function stepOne() {
+                firstThis = this;
+                this.next();
+            }, function stepTwo() {
+                expect(this).to.equal(firstThis);
+                done();
+            }]);
+        });
+
+        it('should be mutable to allow for data passing', function (done) {
+            stepdown([function stepOne() {
+                this.data = [1];
+                this.next();
+            }, function stepTwo() {
+                expect(this).to.have.property('data');
+                this.data.push(2);
+                this.next();
+            }, function stepThree() {
+                expect(this).to.have.property('data');
+                expect(this.data).to.deep.equal([1, 2]);
+                done();
+            }]);
+        });
+    });
 });
