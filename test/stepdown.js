@@ -175,6 +175,23 @@ describe('Stepdown', function () {
                 done();
             });
         });
+
+        it('should throw an Error if called after the step completes', function (done) {
+            stepdown([function stepOne() {
+                var self = this;
+
+                self.addResult()(42);
+                setTimeout(function () {
+                    expect(function () {
+                        self.addResult()(23);
+                    }).to.throw;
+                });
+            }, function neverHappens() {
+                throw new Error('Should not have executed.');
+            }], function errorHandler(err) {
+                done();
+            });
+        });
     });
 
     describe('createGroup', function () {
