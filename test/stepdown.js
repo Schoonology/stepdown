@@ -314,6 +314,17 @@ describe('Stepdown', function () {
         });
     });
 
+    describe('addEventResult', function () {
+        it('should treat the first argument as its result', function (done) {
+            stepdown([function stepOne() {
+                this.addEventResult()(42);
+            }, function finished(result) {
+                expect(result).to.equal(42);
+                this.next();
+            }], done);
+        });
+    });
+
     describe('events', function () {
         describe('complete', function () {
             it('should fire upon completing all steps', function (done) {
