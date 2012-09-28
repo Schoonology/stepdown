@@ -325,6 +325,18 @@ describe('Stepdown', function () {
         });
     });
 
+    describe('createEventGroup', function () {
+        it('should treat the first argument as its result', function (done) {
+            stepdown([function stepOne() {
+                this.createEventGroup()()(42);
+            }, function finished(result) {
+                expect(result).to.be.an.instanceof(Array);
+                expect(result).to.have.property(0, 42);
+                this.next();
+            }], done);
+        });
+    });
+
     describe('events', function () {
         describe('complete', function () {
             it('should fire upon completing all steps', function (done) {
