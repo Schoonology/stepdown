@@ -312,6 +312,25 @@ describe('Stepdown', function () {
                 done();
             }]);
         });
+
+        it('should return an array when provided a number', function (done) {
+            stepdown([function stageOne() {
+                var callbacks = this.createGroup(3);
+                expect(callbacks).to.be.instanceof(Array);
+
+                callbacks.forEach(function(cb, index) {
+                    setTimeout(function() {
+                        cb(null, index);
+                    }, 10*index);
+                });
+            }, function stageTwo(results) {
+                expect(results[0]).to.equal(0);
+                expect(results[1]).to.equal(1);
+                expect(results[2]).to.equal(2);
+
+                done();
+            }]);
+        });
     });
 
     describe('addEventResult', function () {
@@ -512,18 +531,6 @@ describe('Stepdown', function () {
     });
 
     describe('this', function () {
-        it('should be consistent between steps', function (done) {
-            var firstThis;
-
-            stepdown([function stepOne() {
-                firstThis = this;
-                this.next();
-            }, function stepTwo() {
-                expect(this).to.equal(firstThis);
-                done();
-            }]);
-        });
-
         it('should be mutable to allow for data passing', function (done) {
             stepdown([function stepOne() {
                 this.data = [1];
@@ -542,25 +549,66 @@ describe('Stepdown', function () {
 
     describe('progression', function() {
         it('should error if steps resolved after step has progressed', function (done) {
+            var count = 2;
+
             stepdown([function stepOne() {
                 var self = this;
 
                 this.next(null, 'answer');
 
                 setTimeout(function() {
-                    self.next(null, 'answer2');
-                }, 100)
+                    try {
+                        self.next(null, 'answer2');
+                    } catch(e) {
+                        expect(e).to.exist;
+                        if (!--count) {
+                            done();
+                        }
+                    }
+                }, 100);
             }], function callback(err, answer) {
-                console.log('here')
                 expect(err).to.not.exist;
                 expect(answer).to.equal('answer');
+                if (!--count) {
+                    done();
+                }
+            });
+        });
+
+        it('should error if next called after addResult', function (done) {
+            stepdown([function stepOne() {
+                this.addResult();
+                this.next(null, 'answer');
+            }], function callback(err, answer) {
+                expect(err).to.exist;
                 done();
             });
-            
+        });
+
+        it('should error if next called after createGroup()', function (done) {
+            stepdown([function stepOne() {
+                this.createGroup();
+                this.next(null, 'answer');
+            }, function stepTwo(answer) {
+                expect(answer).to.equal('answer');
+                this.createGroup()();
+                this.next(null, 'answer');
+            }], function callback(err, answer) {
+                expect(err).to.exist;
+                done();
+            });
         });
 
         it('should call next step asynchronously', function (done) {
-            
+            var foo;
+
+            stepdown([function stepOne() {
+                this.next();
+                foo = 'bar'
+            }, function stepTwo(answer) {
+                expect(foo).to.equal('bar');
+                return null;
+            }], done);
         });
     });
 });
