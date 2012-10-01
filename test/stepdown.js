@@ -539,4 +539,28 @@ describe('Stepdown', function () {
             }]);
         });
     });
+
+    describe('progression', function() {
+        it('should error if steps resolved after step has progressed', function (done) {
+            stepdown([function stepOne() {
+                var self = this;
+
+                this.next(null, 'answer');
+
+                setTimeout(function() {
+                    self.next(null, 'answer2');
+                }, 100)
+            }], function callback(err, answer) {
+                console.log('here')
+                expect(err).to.not.exist;
+                expect(answer).to.equal('answer');
+                done();
+            });
+            
+        });
+
+        it('should call next step asynchronously', function (done) {
+            
+        });
+    });
 });
