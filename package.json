@@ -32,7 +32,11 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha --reporter spec"
+    "test": "mocha --reporter spec",
+    "bench": "survey ./bench/stepdown"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "optionalDependencies": {
+    "survey": "~0.2.2"
+  }
 }
