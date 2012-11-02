@@ -334,7 +334,7 @@ describe('Stepdown', function () {
                     context.continue();
 
                     callback(null, 42);
-                    group(null, 'answer');
+                    group[0](null, 'answer');
                 }, function stepTwo(context, arg, group) {
                     expect(arguments).to.have.length(3);
                     expect(arg).to.not.exist;
@@ -409,13 +409,33 @@ describe('Stepdown', function () {
                     expect(arguments).to.have.length(3);
                     expect(err).to.not.exist;
                     expect(first).to.equal(1);
-                    expect(second).to.exist;
+                    expect(second).to.not.exist;
                     done();
                 });
             });
 
-            it('should accept non-Error arguments.');
-            it('should accept Error arguments.');
+            it('should accept non-Error arguments.', function (done) {
+                stepdown([function stepOne(context) {
+                    context.finish(null, 42);
+                }], function finished(err, arg) {
+                    expect(arguments).to.have.length(2);
+                    expect(err).to.not.exist;
+                    expect(arg).to.equal(42);
+                    done();
+                });
+            });
+
+            it('should accept Error arguments.', function (done) {
+                var message = 'Oh noes!';
+
+                stepdown([function stepOne(context) {
+                    context.finish(new Error(message));
+                }], function finished(err) {
+                    expect(err).to.have.property('message', message);
+                    expect(arguments).to.have.length(1);
+                    done();
+                });
+            });
         });
 
         describe('options.slowTimeout', function () {
