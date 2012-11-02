@@ -3,6 +3,74 @@ var expect = require('chai').expect,
     stepdown = require('../');
 
 describe('Stepdown', function () {
+    it('should run the first step function asynchronously.', function () {
+        var hits = [];
+
+        stepdown([function stepOne() {
+            hits.push(1);
+        }]);
+
+        hits.push(2);
+
+        expect(hits).to.contain(2);
+        expect(hits).to.not.contain(1);
+    });
+
+    describe('Synchronous Flow', function () {
+        it('should run each step function in order.', function (done) {
+            var hits = [];
+
+            stepdown([function stepOne() {
+                hits.push(1);
+            }, function stepTwo() {
+                hits.push(2);
+            }, function finished() {
+                expect(hits).to.deep.equal([1, 2]);
+                done();
+            }]);
+        });
+
+        it('should run each step function asynchronously after the last.');
+
+        it('should pass the return value of each step function on to the next as the only argument.', function (done) {
+            stepdown([function stepOne() {
+                return [1];
+            }, function stepTwo(hits) {
+                return hits.concat([2]);
+            }, function finished(hits) {
+                expect(hits).to.deep.equal([1, 2]);
+                done();
+            }]);
+        });
+
+        it('should call the Node-style callback asynchronously after the last step function.');
+
+        it('should call the Node-style callback with the return value of the last step function as the second and final argument.', function (done) {
+            stepdown([function stepOne() {
+                return [1];
+            }, function stepTwo(hits) {
+                return hits.concat([2]);
+            }], function finished(err, hits) {
+                expect(err).to.not.exist;
+                expect(hits).to.deep.equal([1, 2]);
+                expect(arguments).to.have.length(2);
+                done();
+            });
+        });
+
+        it('should call the Node-style callback with any thrown Error as the first argument.', function (done) {
+            var message = 'Oh noes!';
+
+            stepdown([function stepOne() {
+                throw new Error(message);
+            }], function finished(err, hits) {
+                expect(err).to.have.property('message', message);
+                expect(arguments).to.have.length(1);
+                done();
+            });
+        });
+    });
+
     describe('next', function () {
         it('should execute each step in order when this.next is called', function (done) {
             var steps = [];
@@ -39,33 +107,6 @@ describe('Stepdown', function () {
                 expect(value).to.equal('three');
                 done();
             }]);
-        });
-
-        it('should pass along the return value if non-null, assuming the step is synchronous', function (done) {
-            stepdown([function stepOne(value) {
-                expect(value).to.not.exist;
-                return 'one';
-            }, function stepTwo(value) {
-                expect(value).to.equal('one');
-                return 'two';
-            }, function stepThree(value) {
-                expect(value).to.equal('two');
-                return 'three';
-            }, function finished(value) {
-                expect(value).to.equal('three');
-                done();
-            }]);
-        });
-
-        it('should execute the provided error handler on throw', function (done) {
-            stepdown([function flaky() {
-                throw 42;
-            }, function neverHappens() {
-                throw new Error('Should not have executed.');
-            }], function errorHandler(err) {
-                expect(err).to.equal(42);
-                done();
-            });
         });
 
         it('should execute the provided error handler on error', function (done) {
@@ -392,6 +433,7 @@ describe('Stepdown', function () {
             it('should emit the "slow" event when a step takes too long', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }], {
                     slowTimeout: 100
                 });
@@ -403,6 +445,7 @@ describe('Stepdown', function () {
             it('should pass along the step itself as data', function (done) {
                 function slowStep() {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }
 
                 var emitter = stepdown([slowStep], {
@@ -417,6 +460,7 @@ describe('Stepdown', function () {
             it('should be able to skip the step upon calling skip', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }, function finished() {
                     done();
                 }], {
@@ -430,6 +474,7 @@ describe('Stepdown', function () {
             it('should default to 0, indicating no timeout', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }]);
 
                 emitter.on('slow', function () {
@@ -444,6 +489,7 @@ describe('Stepdown', function () {
             it('should emit the "skip" event when a step takes too long', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }], {
                     skipTimeout: 100
                 });
@@ -455,6 +501,7 @@ describe('Stepdown', function () {
             it('should pass along the step itself as data', function (done) {
                 function slowStep() {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }
 
                 var emitter = stepdown([slowStep], {
@@ -469,6 +516,7 @@ describe('Stepdown', function () {
             it('should skip the slow step automatically', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }, function finished() {
                     done();
                 }], {
@@ -478,6 +526,7 @@ describe('Stepdown', function () {
             it('should be able to cancel skipping the step upon calling cancel', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }, function () {
                     throw new Error('Should not have been called!');
                 }], {
@@ -496,6 +545,7 @@ describe('Stepdown', function () {
             it('should default to 0, indicating no timeout', function (done) {
                 var emitter = stepdown([function () {
                     // Never continues.
+                    this.next; // Access to indicate asynchronicity.
                 }]);
 
                 emitter.on('skip', function () {
@@ -604,7 +654,7 @@ describe('Stepdown', function () {
 
             stepdown([function stepOne() {
                 this.next();
-                foo = 'bar'
+                foo = 'bar';
             }, function stepTwo(answer) {
                 expect(foo).to.equal('bar');
                 return null;
