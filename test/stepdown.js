@@ -208,6 +208,21 @@ describe('Stepdown', function () {
             }]);
         });
 
+        it('should run each step function with the non-Error result(s) of the previous step based on the type (shorthand).', function (done) {
+            stepdown([function stepOne(context) {
+                context.push()(null, [1]);
+            }, function stepTwo(context, hits) {
+                context.first()(null, hits.concat([2]));
+            }, function stepThree(context, hits) {
+                context.spread()(null, hits, [3]);
+            }, function stepFour(context, hits, otherArray) {
+                context.collapse()(null, hits[0], hits[1], otherArray[0]);
+            }, function stepFive(context, hits) {
+                expect(hits.slice()).to.deep.equal([1, 2, 3]);
+                done();
+            }]);
+        });
+
         it('should call the Node-style callback with the non-Error result of the last step function as the second and final argument.', function (done) {
             stepdown([function stepOne(context) {
                 context.push()(null, [1]);
