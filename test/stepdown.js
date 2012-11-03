@@ -347,17 +347,17 @@ describe('Stepdown', function () {
     });
 
     describe('Advanced Usage', function () {
-        describe('continue', function () {
+        describe('next/nextStep', function () {
             it('should move on to the next step immediately.', function (done) {
                 var hits = [];
 
                 stepdown([function stepOne(context) {
                     hits.push(1);
-                    context.continue();
+                    context.next();
                     hits.push(3);
                 }, function stepTwo(context) {
                     hits.push(2);
-                    context.continue();
+                    context.next();
                 }], function finished() {
                     expect(hits).to.deep.equal([1, 2]);
                     done();
@@ -369,7 +369,7 @@ describe('Stepdown', function () {
                     var callback = context.push(),
                         group = context.group(1);
 
-                    context.continue();
+                    context.next();
 
                     callback(null, 42);
                     group[0](null, 'answer');
@@ -382,7 +382,7 @@ describe('Stepdown', function () {
 
             it('should accept non-Error arguments.', function (done) {
                 stepdown([function stepOne(context) {
-                    context.continue(null, 42);
+                    context.next(null, 42);
                 }], function finished(err, arg) {
                     expect(arguments).to.have.length(2);
                     expect(err).to.not.exist;
@@ -395,7 +395,7 @@ describe('Stepdown', function () {
                 var message = 'Oh noes!';
 
                 stepdown([function stepOne(context) {
-                    context.continue(new Error(message));
+                    context.next(new Error(message));
                 }], function finished(err) {
                     expect(err).to.have.property('message', message);
                     expect(arguments).to.have.length(1);
@@ -404,13 +404,13 @@ describe('Stepdown', function () {
             });
         });
 
-        describe('finish', function () {
+        describe('end', function () {
             it('should fire the final callback immediately.', function (done) {
                 var hits = [];
 
                 stepdown([function stepOne(context) {
                     hits.push(1);
-                    context.finish();
+                    context.end();
                     hits.push(2);
                 }], function finished() {
                     expect(hits).to.deep.equal([1]);
@@ -423,7 +423,7 @@ describe('Stepdown', function () {
 
                 stepdown([function stepOne(context) {
                     hits.push(1);
-                    context.finish();
+                    context.end();
                     hits.push(3);
                 }, function stepTwo(context) {
                     hits.push(2);
@@ -441,7 +441,7 @@ describe('Stepdown', function () {
                     ];
 
                     args[0](null, 1);
-                    context.finish();
+                    context.end();
                     args[1](null, 2);
                 }], function finished(err, first, second) {
                     expect(arguments).to.have.length(3);
@@ -454,7 +454,7 @@ describe('Stepdown', function () {
 
             it('should accept non-Error arguments.', function (done) {
                 stepdown([function stepOne(context) {
-                    context.finish(null, 42);
+                    context.end(null, 42);
                 }], function finished(err, arg) {
                     expect(arguments).to.have.length(2);
                     expect(err).to.not.exist;
@@ -467,7 +467,7 @@ describe('Stepdown', function () {
                 var message = 'Oh noes!';
 
                 stepdown([function stepOne(context) {
-                    context.finish(new Error(message));
+                    context.end(new Error(message));
                 }], function finished(err) {
                     expect(err).to.have.property('message', message);
                     expect(arguments).to.have.length(1);
@@ -481,7 +481,7 @@ describe('Stepdown', function () {
                 var fired = false;
 
                 stepdown([function stepOne(context) {
-                    var callback = context.continue.bind(context);
+                    var callback = context.next.bind(context);
 
                     setTimeout(function () {
                         callback();
@@ -500,7 +500,7 @@ describe('Stepdown', function () {
                 var fired = false;
 
                 stepdown([function stepOne(context) {
-                    var callback = context.continue.bind(context);
+                    var callback = context.next.bind(context);
 
                     setTimeout(function () {
                         callback();
@@ -519,7 +519,7 @@ describe('Stepdown', function () {
                 var fired = false;
 
                 stepdown([function stepOne(context) {
-                    var callback = context.continue.bind(context);
+                    var callback = context.next.bind(context);
 
                     setTimeout(function () {
                         callback(null, 42);
