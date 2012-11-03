@@ -438,18 +438,66 @@ describe('Stepdown', function () {
             });
         });
 
-        describe('options.slowTimeout', function () {
-            it('should fire "slow" events if a step takes longer than slowTimeout ms.');
-            it('should not fire "slow" events if a step takes less than slowTimeout ms.');
-            it('should not skip the offendending steps.');
-            it('should skip the offendending steps if the provided skip function is called.');
-        });
+        describe('options.timeout', function () {
+            it('should fire "timeout" events if a step takes longer than timeout ms.', function (done) {
+                var fired = false;
 
-        describe('options.skipTimeout', function () {
-            it('should fire "skip" events if a step takes longer than skipTimeout ms.');
-            it('should not fire "skip" events if a step takes less than skipTimeout ms.');
-            it('should skip the offendending steps.');
-            it('should not skip the offendending steps if the provided cancel function is called.');
+                stepdown([function stepOne(context) {
+                    var callback = context.continue.bind(context);
+
+                    setTimeout(function () {
+                        callback();
+                    }, 2);
+                }], {
+                    timeout: 1
+                }, function finished(err, arg) {
+                    expect(fired).to.be.true;
+                    done();
+                }).on('timeout', function () {
+                    fired = true;
+                });
+            });
+
+            it('should not fire "timeout" events if a step takes less than timeout ms.', function (done) {
+                var fired = false;
+
+                stepdown([function stepOne(context) {
+                    var callback = context.continue.bind(context);
+
+                    setTimeout(function () {
+                        callback();
+                    }, 1);
+                }], {
+                    timeout: 2
+                }, function finished(err, arg) {
+                    expect(fired).to.be.false;
+                    done();
+                }).on('timeout', function () {
+                    fired = true;
+                });
+            });
+
+            it('should skip the offending steps if the provided skip function is called.', function (done) {
+                var fired = false;
+
+                stepdown([function stepOne(context) {
+                    var callback = context.continue.bind(context);
+
+                    setTimeout(function () {
+                        callback(null, 42);
+                    }, 2);
+                }], {
+                    timeout: 1
+                }, function finished(err, arg) {
+                    expect(fired).to.be.true;
+                    expect(err).to.not.exist;
+                    expect(arg).to.not.exist;
+                    done();
+                }).on('timeout', function (data, skip) {
+                    fired = true;
+                    skip();
+                });
+            });
         });
     });
 });
