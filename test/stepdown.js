@@ -83,7 +83,26 @@ describe('Stepdown', function () {
             }]);
         });
 
-        it('should run each step function asynchronously after the last.');
+        it('should run each step function synchronously after the last.', function (done) {
+            var hits = [];
+
+            stepdown([function stepOne() {
+                hits.push(1);
+
+                process.nextTick(function () {
+                    hits.push(3);
+                });
+            }, function stepTwo() {
+                hits.push(2);
+
+                process.nextTick(function () {
+                    hits.push(4);
+                });
+            }, function finished() {
+                expect(hits.slice()).to.deep.equal([1, 2]);
+                done();
+            }]);
+        });
 
         it('should pass the return value of each step function on to the next as the second and final argument.', function (done) {
             stepdown([function stepOne(context) {
@@ -97,7 +116,26 @@ describe('Stepdown', function () {
             }]);
         });
 
-        it('should call the Node-style callback asynchronously after the last step function.');
+        it('should call the Node-style callback synchronously after the last step function.', function (done) {
+            var hits = [];
+
+            stepdown([function stepOne() {
+                hits.push(1);
+
+                process.nextTick(function () {
+                    hits.push(3);
+                });
+            }, function stepTwo() {
+                hits.push(2);
+
+                process.nextTick(function () {
+                    hits.push(4);
+                });
+            }], function finished() {
+                expect(hits.slice()).to.deep.equal([1, 2]);
+                done();
+            });
+        });
 
         it('should call the Node-style callback with the return value of the last step function as the second and final argument.', function (done) {
             stepdown([function stepOne(context) {
@@ -447,7 +485,7 @@ describe('Stepdown', function () {
 
                     setTimeout(function () {
                         callback();
-                    }, 2);
+                    }, 10);
                 }], {
                     timeout: 1
                 }, function finished(err, arg) {
@@ -468,7 +506,7 @@ describe('Stepdown', function () {
                         callback();
                     }, 1);
                 }], {
-                    timeout: 2
+                    timeout: 10
                 }, function finished(err, arg) {
                     expect(fired).to.be.false;
                     done();
@@ -485,7 +523,7 @@ describe('Stepdown', function () {
 
                     setTimeout(function () {
                         callback(null, 42);
-                    }, 2);
+                    }, 10);
                 }], {
                     timeout: 1
                 }, function finished(err, arg) {
