@@ -36,51 +36,51 @@ module.exports = {
 
     'Single Async Step': function (done) {
         stepdown([function stepOne(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }], done);
     },
 
     'Double Async Steps': function (done) {
         stepdown([function stepOne(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepTwo(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }], done);
     },
 
     'Quadruple Async Steps': function (done) {
         stepdown([function stepOne(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepTwo(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepThree(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepFour(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }], done);
     },
 
     'Ten Async Steps': function (done) {
         stepdown([function stepOne(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepTwo(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepThree(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepFour(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepFive(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepSix(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepSeven(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepEight(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepNine(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }, function stepTen(context) {
-            process.nextTick(context.next);
+            process.nextTick(context.push('first'));
         }], done);
     },
 
