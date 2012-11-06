@@ -1,5 +1,6 @@
 /*global describe:true, it:true */
-var expect = require('chai').expect,
+var EventEmitter = require('events').EventEmitter,
+    expect = require('chai').expect,
     stepdown = require('../');
 
 describe('ResultSet', function () {
@@ -549,6 +550,99 @@ describe('Stepdown', function () {
                 }).on('timeout', function (data, skip) {
                     fired = true;
                     skip();
+                });
+            });
+        });
+
+        describe('bind', function () {
+            it('should bind the first occurrence of an event to a callback', function (done) {
+                var emitter = new EventEmitter();
+
+                stepdown([function stepOne(context) {
+                    var callback = context.first();
+
+                    stepdown.bind(emitter, 'test', callback);
+
+                    emitter.emit('test', 42);
+                }, function stepTwo(context, answer) {
+                    expect(answer).to.equal(42);
+                }], done);
+            });
+
+            it('should bind the first occurrence of an event to a Context', function (done) {
+                var emitter = new EventEmitter();
+
+                stepdown([function stepOne(context) {
+                    stepdown.bind(emitter, 'test', context);
+
+                    emitter.emit('test', 42);
+                }, function stepTwo(context, answer) {
+                    expect(answer).to.equal(42);
+                }], done);
+            });
+
+            it('should be aliased on the Context', function (done) {
+                var emitter = new EventEmitter();
+
+                stepdown([function stepOne(context) {
+                    context.bind(emitter, 'test');
+
+                    emitter.emit('test', 42);
+                }, function stepTwo(context, answer) {
+                    expect(answer).to.equal(42);
+                }], done);
+            });
+        });
+
+        describe('bindError', function () {
+            it('should bind the first error on an EventEmitter to a callback', function (done) {
+                var emitter = new EventEmitter(),
+                    message = 'Oh noes!';
+
+                stepdown([function stepOne(context) {
+                    var callback = context.first();
+
+                    stepdown.bindError(emitter, callback);
+
+                    emitter.emit('error', new Error(message));
+                }], function finished(err, hits) {
+                    expect(err).to.have.property('message', message);
+                    expect(arguments).to.have.length(1);
+                    done();
+                });
+            });
+
+            it('should bind the first error on an EventEmitter to a Context', function (done) {
+                var emitter = new EventEmitter(),
+                    message = 'Oh noes!';
+
+                stepdown([function stepOne(context) {
+                    stepdown.bindError(emitter, context);
+
+                    emitter.emit('error', new Error(message));
+                }, function stepTwo(context, answer) {
+                    expect(answer).to.equal(42);
+                }], function finished(err, hits) {
+                    expect(err).to.have.property('message', message);
+                    expect(arguments).to.have.length(1);
+                    done();
+                });
+            });
+
+            it('should be aliased on the Context', function (done) {
+                var emitter = new EventEmitter(),
+                    message = 'Oh noes!';
+
+                stepdown([function stepOne(context) {
+                    context.bindError(emitter);
+
+                    emitter.emit('error', new Error(message));
+                }, function stepTwo(context, answer) {
+                    expect(answer).to.equal(42);
+                }], function finished(err, hits) {
+                    expect(err).to.have.property('message', message);
+                    expect(arguments).to.have.length(1);
+                    done();
                 });
             });
         });
