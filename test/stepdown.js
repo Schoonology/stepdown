@@ -117,7 +117,7 @@ describe('Stepdown', function () {
             }]);
         });
 
-        it('should call the Node-style callback synchronously after the last step function.', function (done) {
+        it('should call the Node-style callback asynchronously after the last step function.', function (done) {
             var hits = [];
 
             stepdown([function stepOne() {
@@ -133,7 +133,7 @@ describe('Stepdown', function () {
                     hits.push(4);
                 });
             }], function finished() {
-                expect(hits.slice()).to.deep.equal([1, 2]);
+                expect(hits.slice()).to.deep.equal([1, 2, 3, 4]);
                 done();
             });
         });
@@ -375,7 +375,7 @@ describe('Stepdown', function () {
                     hits.push(2);
                     context.next();
                 }], function finished() {
-                    expect(hits).to.deep.equal([1, 2]);
+                    expect(hits).to.deep.equal([1, 2, 3]);
                     done();
                 });
             });
@@ -389,10 +389,8 @@ describe('Stepdown', function () {
 
                     callback(null, 42);
                     group[0](null, 'answer');
-                }, function stepTwo(context, arg, group) {
-                    expect(arguments).to.have.length(3);
-                    expect(arg).to.not.exist;
-                    expect(group).to.not.exist;
+                }, function stepTwo(context) {
+                    expect(arguments).to.have.length(1);
                 }], done);
             });
 
@@ -421,7 +419,7 @@ describe('Stepdown', function () {
         });
 
         describe('end', function () {
-            it('should fire the final callback immediately.', function (done) {
+            it('should fire the final callback asynchronously.', function (done) {
                 var hits = [];
 
                 stepdown([function stepOne(context) {
@@ -429,7 +427,7 @@ describe('Stepdown', function () {
                     context.end();
                     hits.push(2);
                 }], function finished() {
-                    expect(hits).to.deep.equal([1]);
+                    expect(hits).to.deep.equal([1, 2]);
                     done();
                 });
             });
@@ -444,12 +442,12 @@ describe('Stepdown', function () {
                 }, function stepTwo(context) {
                     hits.push(2);
                 }], function finished() {
-                    expect(hits).to.deep.equal([1]);
+                    expect(hits).to.deep.equal([1, 3]);
                     done();
                 });
             });
 
-            it('should carry the current results.', function (done) {
+            it('should provide the only results.', function (done) {
                 stepdown([function stepOne(context) {
                     var args = [
                         context.push(),
@@ -459,11 +457,9 @@ describe('Stepdown', function () {
                     args[0](null, 1);
                     context.end();
                     args[1](null, 2);
-                }], function finished(err, first, second) {
-                    expect(arguments).to.have.length(3);
+                }], function finished(err) {
+                    expect(arguments).to.have.length(1);
                     expect(err).to.not.exist;
-                    expect(first).to.equal(1);
-                    expect(second).to.not.exist;
                     done();
                 });
             });
