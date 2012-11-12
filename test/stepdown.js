@@ -375,6 +375,53 @@ describe('Stepdown', function () {
         });
     });
 
+    describe('Substeps', function () {
+        it('should run with a new Context', function (done) {
+            stepdown.run([function outerStep(outer) {
+                outer.run([function innerStep(inner) {
+                    expect(outer).to.not.equal(inner);
+                    expect(outer).to.not.deep.equal(inner);
+                }], done);
+            }]);
+        });
+
+        it('should share the existing data', function (done) {
+            stepdown.run([function outerStep(outer) {
+                outer.run([function innerStep(inner) {
+                    expect(outer.data).to.equal(inner.data);
+                }], done);
+            }]);
+        });
+
+        it('should invoke any callback provided after the inner steps', function (done) {
+            stepdown.run([function outerStep(outer) {
+                var fn = outer.first();
+
+                outer.run([function innerStep(inner) {
+                    return 42;
+                }], function innerCallback(err, data) {
+                    expect(data).to.equal(42);
+                    fn(null, 'answer');
+                });
+            }], function outerCallback(err, data) {
+                expect(data).to.equal('answer');
+                done();
+            });
+        });
+
+        it('should default to continuing the parent Context', function (done) {
+            stepdown.run([function outerStep(outer) {
+                outer.run([function innerStep(outer) {
+                    return 42;
+                }]);
+            }], function (err, data) {
+                console.log(1);
+                expect(data).to.equal(42);
+                done();
+            });
+        });
+    });
+
     describe('Advanced Usage', function () {
         describe('next/nextStep', function () {
             it('should move on to the next step immediately.', function (done) {
