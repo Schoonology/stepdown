@@ -321,6 +321,21 @@ describe('Stepdown', function () {
             });
         });
 
+        it('should run the next step function immediately if the generator has never been called.', function (done) {
+            var hits = [];
+
+            stepdown([function stepOne(context) {
+                var generator = context.group();
+
+                process.nextTick(function () {
+                    hits.push(1);
+                });
+            }, function stepTwo(context, results) {
+                expect(hits.slice()).to.deep.equal([]);
+                expect(results.slice()).to.deep.equal([]);
+            }], done);
+        });
+
         it('should run each step function with the non-Error result(s) of the previous step based on the type.', function (done) {
             stepdown([function stepOne(context) {
                 var callbacks = context.group(2);
@@ -427,7 +442,6 @@ describe('Stepdown', function () {
                     return 42;
                 }]);
             }], function (err, data) {
-                console.log(1);
                 expect(data).to.equal(42);
                 done();
             });
