@@ -162,6 +162,18 @@ describe('Stepdown', function () {
                 done();
             });
         });
+
+        it('should call the Node-style callback with any returned Error as the first and only argument.', function (done) {
+            var message = 'Oh noes!';
+
+            stepdown([function stepOne() {
+                return new Error(message);
+            }], function finished(err, hits) {
+                expect(err).to.have.property('message', message);
+                expect(arguments).to.have.length(1);
+                done();
+            });
+        });
     });
 
     describe('Pre-defined Asynchronous Flow', function () {
