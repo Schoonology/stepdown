@@ -729,4 +729,37 @@ describe('Stepdown', function () {
             });
         });
     });
+
+    describe('Regressions', function () {
+        describe('Stepdown', function () {
+            it('should continue if one group generator has been called, but not another', function (done) {
+                stepdown([function stepOne(context) {
+                    var a = context.group(),
+                        callback = a(),
+                        b = context.group();
+
+                    process.nextTick(function () {
+                        callback(null, 42);
+                    });
+                }, function stepTwo(context, a, b) {
+                    expect(a.slice()).to.deep.equal([42]);
+                    expect(b.slice()).to.deep.equal([]);
+                }], done);
+            });
+
+            it('should continue if a group generator is never called but a non-group callback is fired', function (done) {
+                stepdown([function stepOne(context) {
+                    var generator = context.group(),
+                        callback = context.first();
+
+                    process.nextTick(function () {
+                        callback(null, 42);
+                    });
+                }, function stepTwo(context, group, other) {
+                    expect(group.slice()).to.deep.equal([]);
+                    expect(other).to.equal(42);
+                }], done);
+            });
+        });
+    });
 });
