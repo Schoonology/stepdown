@@ -760,6 +760,30 @@ describe('Stepdown', function () {
                     expect(other).to.equal(42);
                 }], done);
             });
+
+            it('should create a new data object per context', function (done) {
+                var outerError
+
+                stepdown([function stepOne(context) {
+                    var callback = context.first();
+
+                    context.data.foo = 'bar'
+
+                    setTimeout(callback, 0);
+                }, function stepTwo(context) {
+                    expect(outerError).to.not.exist
+                    expect(context.data).to.have.property('foo', 'bar')
+                }], done);
+
+                stepdown([function stepOne(context) {
+                    expect(context.data).to.not.have.property('foo')
+                    expect(Object.keys(context.data)).to.have.length(0)
+                }], function(err) {
+                    if (err) {
+                        outerError = err
+                    }
+                });
+            });
         });
     });
 });
