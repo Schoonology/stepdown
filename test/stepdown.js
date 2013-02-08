@@ -219,6 +219,9 @@ describe('Stepdown', function () {
                 context.push('event')(hits.concat([4]));
             }, function stepSix(context, hits) {
                 expect(hits.slice()).to.deep.equal([1, 2, 3, 4]);
+                context.push('none')(null, hits.concat([5]));
+            }, function stepSeven(context, hits) {
+                expect(arguments).to.have.length(1);
                 done();
             }]);
         });
@@ -233,9 +236,10 @@ describe('Stepdown', function () {
             }, function stepFour(context, hits, otherArray) {
                 context.collapse()(null, hits[0], hits[1], otherArray[0]);
             }, function stepFive(context, hits) {
-                context.event()(hits.concat([4]));
-            }, function stepSix(context, hits) {
-                expect(hits.slice()).to.deep.equal([1, 2, 3, 4]);
+                context.none()(null, hits.concat([4]));
+                context.event()(hits.concat([5]));
+            }, function stepSeven(context, hits) {
+                expect(hits.slice()).to.deep.equal([1, 2, 3, 5]);
                 done();
             }]);
         });
@@ -250,10 +254,11 @@ describe('Stepdown', function () {
             }, function stepFour(context, hits, otherArray) {
                 context.push('collapse')(null, hits[0], hits[1], otherArray[0]);
             }, function stepFive(context, hits) {
-                context.push('event')(hits.concat([4]));
+                context.push('none')(null, hits.concat([4]));
+                context.push('event')(hits.concat([5]));
             }], function finished(err, hits) {
                 expect(err).to.not.exist;
-                expect(hits.slice()).to.deep.equal([1, 2, 3, 4]);
+                expect(hits.slice()).to.deep.equal([1, 2, 3, 5]);
                 expect(arguments).to.have.length(2);
                 done();
             });
@@ -372,6 +377,13 @@ describe('Stepdown', function () {
                 callbacks[1](2);
             }, function stepSix(context, hits) {
                 expect(hits.slice()).to.deep.equal([1, 2]);
+
+                var callbacks = context.group(2, 'none');
+
+                callbacks[0](null, 1);
+                callbacks[1](null, 2, 3);
+            }, function stepSeven(context) {
+                expect(arguments.length).to.equal(1);
             }], done);
         });
 
