@@ -207,6 +207,8 @@ describe('Stepdown', function () {
         });
 
         it('should run each step function with the non-Error result(s) of the previous step based on the type.', function (done) {
+            var message = 'Oh noes!';
+
             stepdown([function stepOne(context) {
                 context.push()(null, [1]);
             }, function stepTwo(context, hits) {
@@ -222,11 +224,16 @@ describe('Stepdown', function () {
                 context.push('none')(null, hits.concat([5]));
             }, function stepSeven(context, hits) {
                 expect(arguments).to.have.length(1);
+                context.push('ignore')(new Error(message));
+            }, function stepSeven(context, hits) {
+                expect(arguments).to.have.length(1);
                 done();
             }]);
         });
 
         it('should run each step function with the non-Error result(s) of the previous step based on the type (shorthand).', function (done) {
+            var message = 'Oh noes!';
+
             stepdown([function stepOne(context) {
                 context.push()(null, [1]);
             }, function stepTwo(context, hits) {
@@ -236,6 +243,7 @@ describe('Stepdown', function () {
             }, function stepFour(context, hits, otherArray) {
                 context.collapse()(null, hits[0], hits[1], otherArray[0]);
             }, function stepFive(context, hits) {
+                context.ignore()(new Error(message));
                 context.none()(null, hits.concat([4]));
                 context.event()(hits.concat([5]));
             }, function stepSeven(context, hits) {
@@ -245,6 +253,8 @@ describe('Stepdown', function () {
         });
 
         it('should call the Node-style callback with the non-Error result of the last step function as the second and final argument.', function (done) {
+            var message = 'Oh noes!';
+
             stepdown([function stepOne(context) {
                 context.push()(null, [1]);
             }, function stepTwo(context, hits) {
@@ -254,6 +264,7 @@ describe('Stepdown', function () {
             }, function stepFour(context, hits, otherArray) {
                 context.push('collapse')(null, hits[0], hits[1], otherArray[0]);
             }, function stepFive(context, hits) {
+                context.push('ignore')(new Error(message));
                 context.push('none')(null, hits.concat([4]));
                 context.push('event')(hits.concat([5]));
             }], function finished(err, hits) {
@@ -336,12 +347,14 @@ describe('Stepdown', function () {
                     hits.push(1);
                 });
             }, function stepTwo(context, results) {
-                expect(hits.slice()).to.deep.equal([]);
                 expect(results.slice()).to.deep.equal([]);
             }], done);
         });
 
         it('should run each step function with the non-Error result(s) of the previous step based on the type.', function (done) {
+            var messageOne = 'Oh noes! 1',
+                messageTwo = 'Oh noes! 2';
+
             stepdown([function stepOne(context) {
                 var callbacks = context.group(2);
 
@@ -383,6 +396,13 @@ describe('Stepdown', function () {
                 callbacks[0](null, 1);
                 callbacks[1](null, 2, 3);
             }, function stepSeven(context) {
+                expect(arguments.length).to.equal(1);
+
+                var callbacks = context.group(2, 'ignore');
+
+                callbacks[0](new Error(messageOne));
+                callbacks[1](new Error(messageTwo));
+            }, function stepEight(context) {
                 expect(arguments.length).to.equal(1);
             }], done);
         });
