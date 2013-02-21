@@ -36,6 +36,6 @@
   },
   "license": "MIT",
   "optionalDependencies": {
-    "trycatch": "~0.1.0"
+    "trycatch": ">=0.1.0 <0.3.0"
   }
 }
