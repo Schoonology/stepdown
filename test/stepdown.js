@@ -318,4 +318,81 @@ describe('createContext', function () {
 })
 
 describe('stepdown', function () {
+  it('should return a function', function () {
+    expect(stepdown()).to.be.a('function')
+  })
+
+  it('should run each step function in order', function (done) {
+    var events = []
+
+    stepdown([
+      function () {
+        events.push(1)
+      },
+      function () {
+        events.push(2)
+      },
+      function () {
+        expect(events).to.deep.equal([1, 2])
+        done()
+      }
+    ])
+  })
+
+  it('should delay the next step function until all data functions have run', function (done) {
+    var events = []
+
+    stepdown([
+      function (ctx) {
+        var dataFn = ctx('test')
+
+        events.push(1)
+
+        setTimeout(function () {
+          events.push(2)
+          dataFn(null, 3)
+        }, 10)
+      },
+      function (ctx) {
+        expect(ctx.data['test']).to.equal(3)
+        events.push(3)
+      },
+      function (ctx) {
+        expect(events).to.deep.equal([1, 2, 3])
+        done()
+      }
+    ])
+  })
+
+  it('should call the final callback with the data object', function (done) {
+    stepdown([
+      function (ctx) {
+        ctx('test')(null, 1)
+      }
+    ], function (err, data) {
+      expect(err).to.not.exist
+      expect(data).to.be.an('object')
+      expect(data).to.deep.equal({ test: 1 })
+      done()
+    })
+  })
+
+  it('should pass any data function errors to the final callback', function (done) {
+    var error = new Error('test')
+
+    stepdown([
+      function (ctx) {
+        ctx('test')(error)
+      }
+    ], function (err, data) {
+      expect(data).to.not.exist
+      expect(err).to.be.an.instanceof(Error)
+      expect(err).to.equal(error)
+      done()
+    })
+  })
+
+  it('should call the final callback if there are no steps', function (done) {
+    stepdown([], done)
+  })
 })
