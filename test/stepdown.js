@@ -87,6 +87,29 @@ describe('group', function () {
     group[1](second)
     group[2](null)
   })
+
+  it('should call the callback if the size is zero', function (done) {
+    var group
+
+    group = stepdown.group.call(function callback(err, arr) {
+      expect(err).to.not.exist
+      expect(arr).to.be.an.instanceof(Array)
+      expect(arr).to.have.length(0)
+      done()
+    }, 0)
+
+    expect(group).to.have.length(0)
+  })
+
+  it('should provide the stepdown extensions for all children', function () {
+    var group = stepdown.group.call(function () {}, 1)
+
+    expect(group[0].collapse).to.exist
+    expect(group[0].group).to.exist
+    expect(group[0].ignore).to.exist
+    expect(group[0].error).to.exist
+    expect(group[0].event).to.exist
+  })
 })
 
 describe('ignore', function () {
@@ -154,6 +177,8 @@ describe('event', function () {
   })
 })
 
+describe('unevent', function () {})
+
 describe('extendCallback', function () {
   it('should add the appropriate extensions', function () {
     function callback() {}
@@ -171,6 +196,124 @@ describe('extendCallback', function () {
     expect(callback.ignore).to.exist
     expect(callback.error).to.exist
     expect(callback.event).to.exist
+  })
+})
+
+describe('createContext', function () {
+  it('should return a function', function () {
+    expect(stepdown.createContext()).to.be.a('function')
+  })
+
+  describe('context function', function () {
+    it('should return a function', function () {
+      var context = stepdown.createContext()
+
+      expect(context()).to.be.a('function')
+    })
+
+    it('should provide its data object', function () {
+      var context = stepdown.createContext()
+
+      expect(context.data).to.be.an('object')
+    })
+  })
+
+  describe('data function', function () {
+    it('should pass any error to the original callback', function (done) {
+      var error = new Error('test')
+        , context
+
+      context = stepdown.createContext(function (err, data) {
+        expect(data).to.not.exist
+        expect(err).to.be.an.instanceof(Error)
+        expect(err).to.equal(error)
+        done()
+      })
+
+      context.expand = true
+      context()(error)
+    })
+
+    it('should pass the second argument to the context', function () {
+      var context = stepdown.createContext(function () {})
+
+      context.expand = true
+      context('test')(null, 1, 2)
+
+      expect(context.data['test']).to.equal(1)
+    })
+
+    it('should provide the stepdown extensions', function () {
+      var context = stepdown.createContext(function () {})
+        , dataFn
+
+      context.expand = true
+      dataFn = context()
+
+      expect(dataFn.collapse).to.exist
+      expect(dataFn.group).to.exist
+      expect(dataFn.ignore).to.exist
+      expect(dataFn.error).to.exist
+      expect(dataFn.event).to.exist
+    })
+  })
+
+  describe('expand', function () {
+    it('should default to false', function (){
+      var context = stepdown.createContext(function () {})
+
+      expect(context.expand).to.be.false
+    })
+
+    describe('if false,', function () {
+      it('should prevent data function creation', function () {
+        var context = stepdown.createContext(function () {})
+
+        context.expand = false
+        context('test')(null, 1)
+        expect(context.data['test']).to.not.exist
+      })
+
+      it('should allow the next function', function (done) {
+        var context
+          , dataFn
+
+        context = stepdown.createContext(function () {}, function () {
+          done()
+        })
+
+        context.expand = true
+        dataFn = context('test')
+
+        context.expand = false
+        dataFn(null, 1)
+      })
+    })
+
+    describe('if true,', function () {
+      it('should allow data function creation', function () {
+        var context = stepdown.createContext(function () {})
+
+        context.expand = true
+        context('test')(null, 1)
+        expect(context.data['test']).to.equal(1)
+      })
+
+      it('should prevent the next function', function (done) {
+        var context
+          , dataFn
+
+        context = stepdown.createContext(function () {}, function () {
+          done(new Error('Called next'))
+        })
+
+        context.expand = true
+        dataFn = context('test')
+        dataFn(null, 1)
+
+        setImmediate(done)
+      })
+    })
   })
 })
 
