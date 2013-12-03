@@ -19,23 +19,16 @@
     "survey": "~0.2.2"
   },
   "keywords": [
-    "error",
-    "exception",
     "control",
     "flow",
     "async",
-    "series"
+    "series",
+    "error",
+    "handling"
   ],
-  "directories": {
-    "example": "examples",
-    "test": "test"
-  },
   "scripts": {
     "test": "mocha --reporter spec",
     "bench": "survey ./bench/stepdown"
   },
-  "license": "MIT",
-  "optionalDependencies": {
-    "trycatch": ">=0.1.0 <0.3.0"
-  }
+  "license": "MIT"
 }
