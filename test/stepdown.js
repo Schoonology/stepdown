@@ -216,6 +216,24 @@ describe('createContext', function () {
 
       expect(context.data).to.be.an('object')
     })
+
+    it('should not require a name', function () {
+      var context = stepdown.createContext()
+        , a
+        , b
+
+      context.expand = true
+      a = context()
+      b = context()
+
+      expect(a).to.be.a('function')
+      expect(b).to.be.a('function')
+
+      a()
+      b()
+
+      expect(Object.keys(context.data)).to.have.length(2)
+    })
   })
 
   describe('data function', function () {
@@ -255,6 +273,46 @@ describe('createContext', function () {
       expect(dataFn.ignore).to.exist
       expect(dataFn.error).to.exist
       expect(dataFn.event).to.exist
+    })
+
+    it('should only be callable once with a value', function () {
+      var context
+        , dataFn
+
+      context = stepdown.createContext(function () {
+        throw new Error('Should not be called.')
+      })
+
+      context.expand = true
+      dataFn = context('test')
+
+      dataFn(null, 1)
+      expect(context.data['test']).to.equal(1)
+      dataFn(null, 2)
+      expect(context.data['test']).to.equal(1)
+      dataFn(2)
+      expect(context.data['test']).to.equal(1)
+    })
+
+    it('should only be callable once with an error', function () {
+      var called = false
+        , context
+        , dataFn
+
+      context = stepdown.createContext(function () {
+        expect(called).to.be.false
+        called = true
+      })
+
+      context.expand = true
+      dataFn = context('test')
+
+      dataFn(1)
+      expect(context.data['test']).to.equal(stepdown.ERROR)
+      dataFn(2)
+      expect(context.data['test']).to.equal(stepdown.ERROR)
+      dataFn(null, 2)
+      expect(context.data['test']).to.equal(stepdown.ERROR)
     })
   })
 
