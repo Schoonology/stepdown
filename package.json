@@ -13,7 +13,8 @@
     "node": ">=0.2.0"
   },
   "dependencies": {
-    "debug": "~0.7.4"
+    "debug": "~0.7.4",
+    "once-later": "^1.0.1"
   },
   "devDependencies": {
     "mocha": "~1.6.0",

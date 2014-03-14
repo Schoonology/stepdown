@@ -453,4 +453,20 @@ describe('stepdown', function () {
   it('should call the final callback if there are no steps', function (done) {
     stepdown([], done)
   })
+
+  it('should call the final callback only once', function (done) {
+    var called = false
+
+    stepdown([
+      function (ctx) {
+        ctx()(1)
+        ctx()(2)
+      }
+    ], function () {
+      expect(called).to.be.false
+      called = true
+
+      done()
+    })
+  })
 })
