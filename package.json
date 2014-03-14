@@ -29,7 +29,7 @@
     "handling"
   ],
   "scripts": {
-    "test": "mocha --reporter spec",
+    "test": "node_modules/mocha/bin/mocha --reporter spec",
     "bench": "survey ./bench/stepdown"
   },
   "license": "MIT"
